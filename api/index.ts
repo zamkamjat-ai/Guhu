@@ -291,6 +291,108 @@ async function handleRouteNotes(req: VercelRequest, res: VercelResponse) {
   return res.status(405).json({ success: false, error: `Method ${req.method} tidak dibenarkan` });
 }
 
+// ── /api/road-distance ───────────────────────────────────────────────────────
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in km
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function greedyNearestNeighbor(coords: Array<[number, number]>): number[] {
+  if (coords.length === 0) return [];
+  if (coords.length === 1) return [0];
+
+  const remaining = new Set(coords.map((_, i) => i));
+  const sequence: number[] = [0];
+  remaining.delete(0);
+
+  let currentIdx = 0;
+  while (remaining.size > 0) {
+    const [currentLon, currentLat] = coords[currentIdx];
+    let nearest = -1;
+    let nearestDist = Number.POSITIVE_INFINITY;
+
+    for (const idx of remaining) {
+      const [lon, lat] = coords[idx];
+      const dist = haversineKm(currentLat, currentLon, lat, lon);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearest = idx;
+      }
+    }
+
+    sequence.push(nearest);
+    remaining.delete(nearest);
+    currentIdx = nearest;
+  }
+
+  return sequence;
+}
+
+async function handleRoadDistance(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ success: false, error: `Method ${req.method} not allowed` });
+  }
+
+  const { coordinates, source, destinations } = req.body;
+
+  try {
+    // Handle route sequence request
+    if (Array.isArray(coordinates) && coordinates.length > 0) {
+      const sequence = greedyNearestNeighbor(coordinates);
+      let totalKm = 0;
+      let totalMin = 0;
+
+      for (let i = 0; i < sequence.length - 1; i++) {
+        const [lon1, lat1] = coordinates[sequence[i]];
+        const [lon2, lat2] = coordinates[sequence[i + 1]];
+        const km = haversineKm(lat1, lon1, lat2, lon2);
+        totalKm += km;
+        // Estimate 1 minute per 1 km for travel time
+        totalMin += km;
+      }
+
+      return res.status(200).json({
+        mode: 'sequence',
+        segments: sequence,
+        totalKm: Math.round(totalKm * 100) / 100,
+        totalMin: Math.round(totalMin),
+      });
+    }
+
+    // Handle distance matrix request
+    if (Array.isArray(source) && Array.isArray(destinations)) {
+      const [sourceLon, sourceLat] = source;
+      const distances: (number | null)[] = [];
+      const durations: (number | null)[] = [];
+
+      for (const [destLon, destLat] of destinations) {
+        const km = haversineKm(sourceLat, sourceLon, destLat, destLon);
+        distances.push(Math.round(km * 100) / 100);
+        durations.push(Math.round(km)); // 1 minute per 1 km estimate
+      }
+
+      return res.status(200).json({
+        mode: 'matrix',
+        distances,
+        durations,
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid request: provide either coordinates or source+destinations',
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[api/road-distance]', error);
+    return res.status(500).json({ success: false, error: message });
+  }
+}
+
 // ── /api/routes ───────────────────────────────────────────────────────────────
 async function handleRoutes(req: VercelRequest, res: VercelResponse) {
   await sql`CREATE TABLE IF NOT EXISTS routes (
@@ -346,15 +448,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     switch (segment) {
-      case 'calendar':    return await handleCalendar(req, res);
-      case 'deliveries':  return await handleDeliveries(req, res);
-      case 'notes':       return await handleNotes(req, res);
-      case 'plano':       return await handlePlano(req, res);
-      case 'proxy-image': return await handleProxyImage(req, res);
-      case 'upload':      return await handleUpload(req, res);
-      case 'rooster':     return await handleRooster(req, res);
-      case 'route-notes': return await handleRouteNotes(req, res);
-      case 'routes':      return await handleRoutes(req, res);
+      case 'calendar':      return await handleCalendar(req, res);
+      case 'deliveries':    return await handleDeliveries(req, res);
+      case 'notes':         return await handleNotes(req, res);
+      case 'plano':         return await handlePlano(req, res);
+      case 'proxy-image':   return await handleProxyImage(req, res);
+      case 'upload':        return await handleUpload(req, res);
+      case 'rooster':       return await handleRooster(req, res);
+      case 'route-notes':   return await handleRouteNotes(req, res);
+      case 'road-distance': return await handleRoadDistance(req, res);
+      case 'routes':        return await handleRoutes(req, res);
       default:
         return res.status(404).json({ success: false, error: `Unknown endpoint: /api/${segment}` });
     }

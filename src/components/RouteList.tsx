@@ -694,6 +694,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
   // Responsive card dimensions — measure the actual container so CSS zoom is handled correctly
   const cardContainerRef = useRef<HTMLDivElement>(null)
   const cardCarouselRef = useRef<HTMLDivElement>(null)
+  const detailTableWrapperRef = useRef<HTMLDivElement>(null)
   const [cardContainerWidth, setCardContainerWidth] = useState(0)
   const [cardW, setCardW] = useState(300)
   const [cardH, setCardH] = useState(460)
@@ -1002,6 +1003,42 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
       window.removeEventListener('resize', updateActiveIndex)
     }
   }, [displayedRoutes.length, cardW])
+
+  // When detail dialog table is visible and not fullscreen, translate vertical wheel into horizontal carousel scroll
+  useEffect(() => {
+    const wrapper = detailTableWrapperRef.current
+    if (!wrapper) return
+
+    const handleWheel = (e: WheelEvent) => {
+      if (detailFullscreen) return
+      const scroller = cardCarouselRef.current
+      if (!scroller) return
+      // Only intercept vertical scrolling (not horizontal)
+      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return
+      e.preventDefault()
+      // Scroll carousel horizontally proportional to wheel delta
+      scroller.scrollBy({ left: e.deltaY, behavior: 'smooth' })
+    }
+
+    wrapper.addEventListener('wheel', handleWheel, { passive: false })
+    return () => wrapper.removeEventListener('wheel', handleWheel as EventListener)
+  }, [detailFullscreen])
+
+  // Also map vertical wheel over the card carousel itself to horizontal scroll (except fullscreen)
+  useEffect(() => {
+    const scroller = cardCarouselRef.current
+    if (!scroller) return
+
+    const handleWheel = (e: WheelEvent) => {
+      if (detailFullscreen) return
+      if (Math.abs(e.deltaY) < Math.abs(e.deltaX)) return
+      e.preventDefault()
+      scroller.scrollBy({ left: e.deltaY, behavior: 'smooth' })
+    }
+
+    scroller.addEventListener('wheel', handleWheel, { passive: false })
+    return () => scroller.removeEventListener('wheel', handleWheel as EventListener)
+  }, [detailFullscreen])
 
   useEffect(() => {
     setActiveCarouselIndex(0)
@@ -3138,7 +3175,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
                     {/* Table / Map */}
                     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                     {dialogView === 'map' ? (
-                      <div className="flex-1 overflow-auto min-h-0">
+                        <div ref={detailTableWrapperRef} className="flex-1 overflow-auto min-h-0">
                       <div className="h-full min-h-[400px] relative">
                         <DeliveryMap deliveryPoints={mapDeliveryPoints} scrollZoom={true} showPolyline={showPolyline} markerStyle={markerStyle} mapStyle={mapStyle} startPoint={kmStartPoint} includeStartInBounds={false} refitToken={mapRefitToken} resizeToken={mapResizeToken} onResetRoute={() => { setCombinedRouteIds(new Set([route.id])); setMapRefitToken(v => v + 1) }} />
                       </div>

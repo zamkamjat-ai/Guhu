@@ -285,7 +285,8 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               title="Profile"
               description={t.profileDescription}
             />
-            <div className="space-y-5">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+              <p className="text-sm text-muted-foreground mb-6">Update your account information and contact details used for delivery coordination and app personalization.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {([
                   { key: 'name',  label: 'Full Name',     type: 'text',  icon: null },
@@ -294,7 +295,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   { key: 'phone', label: 'Phone Number',   type: 'text',  icon: <Phone className="size-4" /> },
                 ] as { key: keyof typeof profile; label: string; type: string; icon: ReactNode }[]).map(({ key, label, type, icon }) => (
                   <div key={key} className="space-y-2.5">
-                    <label className="text-sm font-medium flex items-center gap-2">
+                    <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
                       {icon}{label}
                     </label>
                     <div className="relative">
@@ -304,10 +305,10 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                           value={profile[key]}
                           onChange={e => setProfile({ ...profile, [key]: e.target.value })}
                           placeholder={label}
-                          className="pr-9"
+                          className="pr-10"
                         />
                       ) : (
-                        <div className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-3 h-9">
+                        <div className="flex items-center justify-between rounded-2xl border border-border bg-muted/40 px-4 h-11">
                           <span className="text-sm truncate">{profile[key] || <span className="text-muted-foreground italic">—</span>}</span>
                           <button
                             type="button"
@@ -323,7 +324,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                         <button
                           type="button"
                           onClick={() => copyToClipboard(key, profile[key])}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                           title="Copy"
                         >
                           {copiedField === key ? <Check className="size-3.5 text-green-500" /> : <Copy className="size-3.5" />}
@@ -333,7 +334,6 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </div>
                 ))}
               </div>
-
             </div>
           </div>
         )
@@ -354,34 +354,33 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               description="Manage the notifications you receive."
             />
 
-            <FieldGroup className="w-full space-y-3">
-              {NOTIF_ITEMS.map(({ key, label, desc, icon }) => (
-                <Field key={key} orientation="horizontal"
-                  className="justify-between rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm hover:bg-accent/30 transition-colors"
-                >
-                  {/* Left: icon + text */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="shrink-0 rounded-md p-1.5">{icon}</span>
-                    <div className="min-w-0">
-                      <FieldLabel htmlFor={`notif-${key}`} className="text-sm font-medium leading-tight block truncate">
-                        {label}
-                      </FieldLabel>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-tight">{desc}</p>
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+              <p className="text-sm text-muted-foreground mb-6">Choose which alerts reach you, including email, push, SMS and weekly summaries.</p>
+              <FieldGroup className="w-full space-y-3">
+                {NOTIF_ITEMS.map(({ key, label, desc, icon }) => (
+                  <Field key={key} orientation="horizontal"
+                    className="justify-between rounded-3xl border border-border bg-background px-4 py-4 shadow-sm transition hover:border-primary/30"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="shrink-0 rounded-2xl bg-muted/70 p-2 text-muted-foreground">{icon}</span>
+                      <div className="min-w-0">
+                        <FieldLabel htmlFor={`notif-${key}`} className="text-sm font-semibold leading-tight block truncate text-foreground">
+                          {label}
+                        </FieldLabel>
+                        <p className="text-xs text-muted-foreground mt-1 leading-tight">{desc}</p>
+                      </div>
                     </div>
-                  </div>
-                  {/* Right: switch */}
-                  <Switch
-                    id={`notif-${key}`}
-                    size="default"
-                    checked={notifications[key]}
-                    onCheckedChange={v => setNotifications(n => ({ ...n, [key]: v }))}
-                    className="shrink-0 ml-4"
-                  />
-                </Field>
-              ))}
-            </FieldGroup>
-
-
+                    <Switch
+                      id={`notif-${key}`}
+                      size="default"
+                      checked={notifications[key]}
+                      onCheckedChange={v => setNotifications(n => ({ ...n, [key]: v }))}
+                      className="shrink-0 ml-4"
+                    />
+                  </Field>
+                ))}
+              </FieldGroup>
+            </div>
           </div>
         )
       }
@@ -395,7 +394,8 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               title={t.fontTitle}
               description={t.fontDescription}
             />
-            <div className="space-y-6">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-6">
+              <p className="text-sm text-muted-foreground">Select the best font style for a clean and consistent app experience.</p>
               <div className="max-h-[46vh] overflow-y-auto pr-1">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {FONT_OPTIONS.map(opt => {
@@ -403,29 +403,27 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   const isApplied  = appFont === opt.id
                   return (
                     <button key={opt.id} onClick={() => setSelectedFont(opt.id as AppFont)}
-                      className={`relative flex flex-col gap-1.5 rounded-lg border-2 px-4 py-3 text-left transition-all hover:scale-[1.02] ${isSelected ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "border-border hover:border-primary/40"}`}
+                      className={`relative flex flex-col gap-1.5 rounded-3xl border-2 px-4 py-4 text-left transition-all hover:scale-[1.02] ${isSelected ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "border-border bg-background hover:border-primary/40"}`}
                     >
-                      <span className="text-2xl font-bold leading-none" style={{ fontFamily: opt.family }}>Aa</span>
-                      <span className="text-xs text-muted-foreground truncate">{opt.label}</span>
-                      <span className="text-[10px] text-muted-foreground/60 truncate" style={{ fontFamily: opt.family }}>Lorem ipsum</span>
-                      {isSelected && <span className="absolute top-2 right-2 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="size-2.5" /></span>}
-                      {isApplied && !isSelected && <span className="absolute bottom-2 right-2 text-[9px] font-semibold text-muted-foreground/60 uppercase tracking-wide">{t.active}</span>}
+                      <span className="text-3xl font-bold leading-none" style={{ fontFamily: opt.family }}>Aa</span>
+                      <span className="text-xs font-semibold text-foreground truncate">{opt.label}</span>
+                      <span className="text-[10px] text-muted-foreground/70 truncate" style={{ fontFamily: opt.family }}>The quick brown fox</span>
+                      {isSelected && <span className="absolute top-3 right-3 flex size-4 items-center justify-center rounded-full bg-primary text-primary-foreground"><Check className="size-2.5" /></span>}
+                      {isApplied && !isSelected && <span className="absolute bottom-3 right-3 text-[9px] font-semibold text-muted-foreground/70 uppercase tracking-wide">{t.active}</span>}
                     </button>
                   )
                 })}
                 </div>
               </div>
-              <div className="mt-2 p-4 rounded-lg bg-muted/40 border">
-                <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wider font-semibold">{t.previewLabel}</p>
-                <p className="text-[15px]" style={{ fontFamily: FONT_OPTIONS.find(f => f.id === selectedFont)?.family }}>
+              <div className="rounded-3xl border border-border bg-background p-5">
+                <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wider font-semibold">{t.previewLabel}</p>
+                <p className="text-sm text-foreground" style={{ fontFamily: FONT_OPTIONS.find(f => f.id === selectedFont)?.family }}>
                   {t.previewTextPrefix} <strong>{FONT_OPTIONS.find(f => f.id === selectedFont)?.label}</strong>. {t.previewTextSuffix}
                 </p>
               </div>
               {fontDirty && (
-                <div className="flex items-center justify-end gap-3">
-                  <Button variant="outline" onClick={() => setSelectedFont("system")}>
-                    {t.reset}
-                  </Button>
+                <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+                  <Button variant="outline" onClick={() => setSelectedFont("system")}>{t.reset}</Button>
                   <Button onClick={() => setAppFont(selectedFont)} className="bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-600">
                     {t.apply}
                   </Button>
@@ -440,24 +438,25 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
         return (
           <div className="space-y-6">
             <SectionHeader icon={<Navigation className="size-5" />} title="Default Map View" description="Coordinates and zoom shown by default in Map Marker." />
-            <div className="space-y-5">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-6">
+              <p className="text-sm text-muted-foreground">Set the default map center and zoom level used by map-related views.</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium">Latitude</label>
+                  <label className="text-sm font-semibold text-foreground">Latitude</label>
                   <Input value={mapLat} onChange={e => setMapLat(e.target.value)} placeholder="3.0695500" className="font-mono" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Longitude</label>
+                <div className="space-y-2.5">
+                  <label className="text-sm font-semibold text-foreground">Longitude</label>
                   <Input value={mapLng} onChange={e => setMapLng(e.target.value)} placeholder="101.5469179" className="font-mono" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Zoom (1–18)</label>
+                <div className="space-y-2.5">
+                  <label className="text-sm font-semibold text-foreground">Zoom (1–18)</label>
                   <Input type="number" min={1} max={18} value={mapZoom} onChange={e => setMapZoom(e.target.value)} />
                 </div>
               </div>
-              <div className="flex items-center">
+              <div>
                 <button onClick={() => { setMapLat(MAP_FALLBACK.lat); setMapLng(MAP_FALLBACK.lng); setMapZoom(MAP_FALLBACK.zoom) }}
-                  className="text-xs text-muted-foreground underline hover:text-foreground"
+                  className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
                 >Reset to default (3.0695500, 101.5469179)</button>
               </div>
             </div>
@@ -616,72 +615,73 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               title="Storage"
               description="Reference of where app data is stored (Database and Local Storage)."
             />
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-6">
+              <p className="text-sm text-muted-foreground">Review the storage locations used by the app and understand what data is kept where.</p>
+              <div className="inline-flex rounded-2xl border border-border bg-background p-1">
+                <button
+                  type="button"
+                  onClick={() => setStorageTab("database")}
+                  className={`inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold transition ${
+                    storageTab === "database"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Database className="size-4" />
+                  Database
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStorageTab("local")}
+                  className={`inline-flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-semibold transition ${
+                    storageTab === "local"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <HardDrive className="size-4" />
+                  Local Storage
+                </button>
+              </div>
+              {storageTab === "database" ? (
+                <div className="space-y-2.5">
+                  {DATABASE_STORAGE_ITEMS.map((item) => (
+                    <div key={item.store} className="rounded-3xl border border-border bg-background px-4 py-4 shadow-sm">
+                      <p className="text-sm font-semibold text-foreground">{item.section}</p>
+                      <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Local Storage</p>
+                    <div className="space-y-2.5">
+                      {LOCAL_STORAGE_ITEMS.map((item) => (
+                        <div key={item.store} className="rounded-3xl border border-border bg-background px-4 py-4 shadow-sm">
+                          <p className="text-sm font-semibold text-foreground">{item.section}</p>
+                          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
 
-            <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1">
-              <button
-                type="button"
-                onClick={() => setStorageTab("database")}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  storageTab === "database"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Database className="size-3.5" />
-                Database
-              </button>
-              <button
-                type="button"
-                onClick={() => setStorageTab("local")}
-                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  storageTab === "local"
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <HardDrive className="size-3.5" />
-                Local Storage
-              </button>
+                  <div>
+                    <p className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <Clock3 className="size-3.5" />Session Storage
+                    </p>
+                    <div className="space-y-2.5">
+                      {SESSION_STORAGE_ITEMS.map((item) => (
+                        <div key={item.store} className="rounded-3xl border border-border bg-background px-4 py-4 shadow-sm">
+                          <p className="text-sm font-semibold text-foreground">{item.section}</p>
+                          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-
-            {storageTab === "database" ? (
-              <div className="space-y-2.5">
-                {DATABASE_STORAGE_ITEMS.map((item) => (
-                  <div key={item.store} className="rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm">
-                    <p className="text-sm font-semibold text-foreground">{item.section}</p>
-                    <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-5">
-                <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Local Storage</p>
-                  <div className="space-y-2.5">
-                    {LOCAL_STORAGE_ITEMS.map((item) => (
-                      <div key={item.store} className="rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm">
-                        <p className="text-sm font-semibold text-foreground">{item.section}</p>
-                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="mb-2 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <Clock3 className="size-3.5" />Session Storage
-                  </p>
-                  <div className="space-y-2.5">
-                    {SESSION_STORAGE_ITEMS.map((item) => (
-                      <div key={item.store} className="rounded-xl border border-border bg-card px-4 py-3.5 shadow-sm">
-                        <p className="text-sm font-semibold text-foreground">{item.section}</p>
-                        <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">{item.purpose}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         )
 
@@ -694,9 +694,9 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               title="Security"
               description="Tukar kata laluan akaun anda."
             />
-            <div className="space-y-5">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-sm space-y-6">
               <div className="space-y-2.5">
-                <label className="text-sm font-medium flex items-center gap-2"><Shield className="size-4" />Current Password</label>
+                <label className="text-sm font-semibold flex items-center gap-2 text-foreground"><Shield className="size-4" />Current Password</label>
                 <div className="relative">
                   <Input type={showPasswords.current ? "text" : "password"} value={security.currentPassword} onChange={e => setSecurity({ ...security, currentPassword: e.target.value })} placeholder="Enter current password" className="pr-10" />
                   <button onClick={() => setShowPasswords(p => ({ ...p, current: !p.current }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -706,7 +706,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium">New Password</label>
+                  <label className="text-sm font-semibold text-foreground">New Password</label>
                   <div className="relative">
                     <Input type={showPasswords.new ? "text" : "password"} value={security.newPassword} onChange={e => setSecurity({ ...security, newPassword: e.target.value })} placeholder="Enter new password" className="pr-10" />
                     <button onClick={() => setShowPasswords(p => ({ ...p, new: !p.new }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -715,7 +715,7 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </div>
                 </div>
                 <div className="space-y-2.5">
-                  <label className="text-sm font-medium">Confirm Password</label>
+                  <label className="text-sm font-semibold text-foreground">Confirm Password</label>
                   <div className="relative">
                     <Input type={showPasswords.confirm ? "text" : "password"} value={security.confirmPassword} onChange={e => setSecurity({ ...security, confirmPassword: e.target.value })} placeholder="Confirm new password" className="pr-10" />
                     <button onClick={() => setShowPasswords(p => ({ ...p, confirm: !p.confirm }))} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -724,8 +724,8 @@ export function Settings({ section = "profile" }: { section?: SectionId }) {
                   </div>
                 </div>
               </div>
-              <div className="bg-muted/50 rounded-md p-4 text-sm text-muted-foreground space-y-1">
-                <p className="font-medium">Password requirements:</p>
+              <div className="rounded-3xl border border-border/70 bg-background p-4 text-sm text-muted-foreground space-y-2">
+                <p className="font-semibold text-foreground">Password requirements</p>
                 <ul className="list-disc list-inside space-y-0.5 text-xs">
                   <li>At least 8 characters long</li>
                   <li>Contains uppercase and lowercase letters</li>
