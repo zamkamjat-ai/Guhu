@@ -17,9 +17,37 @@ function TooltipProvider({
 }
 
 function Tooltip({
+  closeOnClickOutside = false,
   ...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+}: React.ComponentProps<typeof TooltipPrimitive.Root> & { closeOnClickOutside?: boolean }) {
+  const isControlled = props.open !== undefined
+  const [openState, setOpenState] = React.useState(false)
+
+  const open = isControlled ? (props.open as boolean) : openState
+  const setOpen = isControlled
+    ? (next: boolean) => props.onOpenChange?.(next)
+    : setOpenState
+
+  React.useEffect(() => {
+    if (!closeOnClickOutside || !open) return
+    const handler = (e: PointerEvent) => {
+      const content = document.querySelector('[data-slot="tooltip-content"]')
+      const trigger = document.querySelector('[data-slot="tooltip-trigger"]')
+      if (content && content.contains(e.target as Node)) return
+      if (trigger && trigger.contains(e.target as Node)) return
+      setOpen(false)
+    }
+    document.addEventListener("pointerdown", handler)
+    return () => document.removeEventListener("pointerdown", handler)
+  }, [open, closeOnClickOutside])
+
+  const passedProps: any = { ...props }
+  if (!isControlled) {
+    passedProps.open = openState
+    passedProps.onOpenChange = setOpenState
+  }
+
+  return <TooltipPrimitive.Root data-slot="tooltip" {...passedProps} />
 }
 
 function TooltipTrigger({

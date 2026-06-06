@@ -547,6 +547,7 @@ export function DeliveryMap({ deliveryPoints, scrollZoom = false, showPolyline =
         <MapReadyController onReady={setMapRef} />
         <MapInteractionWatcher onStart={handleInteractStart} onEnd={handleInteractEnd} />
       <TileLayer
+        key={activeMapStyle}
         attribution={tiles.attribution}
         url={tiles.url}
         subdomains={tiles.subdomains}

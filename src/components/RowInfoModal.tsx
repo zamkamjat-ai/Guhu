@@ -83,7 +83,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
       setQrCodeDestinationUrl(point.qrCodeDestinationUrl ?? "")
       const imgs = point.avatarImages ?? (point.avatarImageUrl ? [point.avatarImageUrl] : [])
       setAvatarImages(imgs)
-      setAvatarImageUrl(point.avatarImageUrl ?? (imgs[0] ?? noImageSrc))
+      setAvatarImageUrl(point.avatarImageUrl ?? imgs[0] ?? "")
       setIsEditing(false)
     }
   }, [open, point])
@@ -183,6 +183,14 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
       if (filteredDrafts[i].key !== originalDescs[i]?.key || filteredDrafts[i].value !== originalDescs[i]?.value) return true
     }
     if ((markerColor ?? undefined) !== (point.markerColor ?? undefined)) return true
+    if ((qrCodeImageUrl ?? "") !== (point.qrCodeImageUrl ?? "")) return true
+    if ((qrCodeDestinationUrl ?? "") !== (point.qrCodeDestinationUrl ?? "")) return true
+    const originalAvatarUrls = point.avatarImages ?? (point.avatarImageUrl ? [point.avatarImageUrl] : [])
+    if (avatarImageUrl !== (point.avatarImageUrl ?? originalAvatarUrls[0] ?? "")) return true
+    if (avatarImages.length !== originalAvatarUrls.length) return true
+    for (let i = 0; i < avatarImages.length; i++) {
+      if (avatarImages[i] !== originalAvatarUrls[i]) return true
+    }
     return false
   })()
 
@@ -221,6 +229,13 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
     setDrafts(point.descriptions ?? [])
     setMarkerColor(point.markerColor)
     setMarkerColorInput(point.markerColor ?? "")
+    setQrCodeImageUrl(point.qrCodeImageUrl ?? "")
+    setQrCodeDestinationUrl(point.qrCodeDestinationUrl ?? "")
+    const originalAvatarImages = point.avatarImages ?? (point.avatarImageUrl ? [point.avatarImageUrl] : [])
+    setAvatarImages(originalAvatarImages)
+    setAvatarImageUrl(point.avatarImageUrl ?? originalAvatarImages[0] ?? "")
+    setShowAvatarDialog(false)
+    setShowQRDialog(false)
     setIsEditing(false)
   }
 
@@ -259,8 +274,11 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
       <Dialog open={open} onOpenChange={(o) => { if (!o) { setPendingUrl(null); setPendingUrlLabel("") } onOpenChange(o) }}>
       <DialogContent
         onInteractOutside={handleDialogInteractOutside}
-        overlayClassName="bg-black/25 backdrop-blur-[2px]"
-        className="flex max-h-[min(80vh,36rem)] w-[93vw] max-w-[22.5rem] flex-col gap-0 overflow-hidden rounded-[22px] border border-border/80 bg-card/95 p-0 shadow-[0_16px_38px_hsl(var(--foreground)/0.14)] backdrop-blur-md supports-[backdrop-filter]:bg-card/90 dark:shadow-[0_18px_42px_hsl(var(--background)/0.55)] md:max-w-[23.5rem]"
+        overlayClassName={isEditing ? "z-[100000] bg-black/50 backdrop-blur-[4px]" : "z-[100000] bg-black/40 backdrop-blur-[2px]"}
+        className={
+          "z-[100001] flex max-h-[min(80vh,36rem)] w-[93vw] max-w-[22.5rem] flex-col gap-0 overflow-hidden rounded-[22px] border border-border/80 bg-card/95 p-0 shadow-[0_16px_38px_hsl(var(--foreground)/0.14)] backdrop-blur-md supports-[backdrop-filter]:bg-card/90 dark:shadow-[0_18px_42px_hsl(var(--background)/0.55)] md:max-w-[23.5rem] " +
+          (isEditing ? "backdrop-blur-xl bg-card/90" : "")
+        }
       >
         {/* Header */}
         <DialogHeader className="shrink-0 border-b border-border bg-gradient-to-b from-background/75 to-card/35 px-4 pt-4 pb-3 text-left md:px-5 md:pt-5 md:pb-4">
@@ -298,7 +316,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                     onClick={openAvatarGallery}
                     className="relative flex size-11 shrink-0 cursor-zoom-in items-center justify-center overflow-hidden rounded-full bg-muted shadow focus:outline-none md:size-14"
                   >
-                    <img src={avatarImageUrl || avatarImages[0]} alt={point.name} className="size-full rounded-full object-cover" />
+                    <img src={avatarImageUrl || avatarImages[0] || noImageSrc} alt={point.name} className="size-full rounded-full object-cover" />
                     {avatarImages.length > 1 && (
                       <span className="absolute -right-0.5 -bottom-0.5 rounded-full bg-foreground/75 px-1 py-0.5 text-[9px] leading-none text-background md:px-1.5 md:py-1 md:text-[10px]">
                         {avatarImages.length}
@@ -347,10 +365,24 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
             </div>
 
             {isEditing ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {allowMarkerColorEdit && (
-                  <div className="rounded-md border border-border/70 bg-muted/40 p-2.5">
-                    <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Marker Color</p>
+                  <div className="rounded-2xl border border-border/70 bg-muted/30 p-3">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Marker Color</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-8 px-2 text-[9px]"
+                        onClick={() => {
+                          setMarkerColor(undefined)
+                          setMarkerColorInput("")
+                        }}
+                      >
+                        Reset
+                      </Button>
+                    </div>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
@@ -359,7 +391,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           setMarkerColor(e.target.value)
                           setMarkerColorInput(e.target.value)
                         }}
-                        className="h-8 w-10 cursor-pointer rounded border border-border bg-background p-1"
+                        className="h-10 w-11 cursor-pointer rounded border border-border bg-background p-1"
                         aria-label="Marker color"
                       />
                       <Input
@@ -375,52 +407,51 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
                           }
                           if (isHexColor(normalized)) setMarkerColor(normalized)
                         }}
-                        className="h-8 flex-1 text-[10px] md:text-[10px]"
+                        className="h-10 flex-1 text-[10px] md:text-[10px]"
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-8 px-2 text-[9px]"
-                        onClick={() => {
-                          setMarkerColor(undefined)
-                          setMarkerColorInput("")
-                        }}
-                      >
-                        Reset
-                      </Button>
                     </div>
                   </div>
                 )}
-                {drafts.map((d, i) => (
-                  <div key={i} className="flex gap-2 items-center">
-                    <Input
-                      placeholder="Key"
-                      value={d.key}
-                      onChange={e => handleChange(i, "key", e.target.value)}
-                      className="w-28 h-8 text-[10px] md:text-[10px]"
-                    />
-                    <Input
-                      placeholder="Value"
-                      value={d.value}
-                      onChange={e => handleChange(i, "value", e.target.value)}
-                      className="flex-1 h-8 text-[10px] md:text-[10px]"
-                    />
-                    <button
-                      onClick={() => handleRemove(i)}
-                      className="theme-danger shrink-0"
+                <div className="space-y-2">
+                  {drafts.map((d, i) => (
+                    <div key={i} className="grid gap-2 rounded-2xl border border-border/70 bg-muted/20 p-2.5 sm:grid-cols-[9rem_1fr_auto]">
+                      <Input
+                        placeholder="Key"
+                        value={d.key}
+                        onChange={e => handleChange(i, "key", e.target.value)}
+                        className="h-9 text-[10px] md:text-[10px]"
+                      />
+                      <Input
+                        placeholder="Value"
+                        value={d.value}
+                        onChange={e => handleChange(i, "value", e.target.value)}
+                        className="h-9 text-[10px] md:text-[10px]"
+                      />
+                      <button
+                        onClick={() => handleRemove(i)}
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border/70 bg-background text-destructive transition-colors hover:bg-destructive/10"
+                        aria-label="Remove field"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="inline-flex items-center gap-2 px-3"
+                      onClick={handleAdd}
                     >
-                      <Trash2 className="size-4" />
-                    </button>
+                      <Plus className="size-3.5" />
+                      Add field
+                    </Button>
+                    {drafts.length === 0 && (
+                      <p className="text-[10px] text-muted-foreground">Add custom info fields for this location.</p>
+                    )}
                   </div>
-                ))}
-                <button
-                  onClick={handleAdd}
-                  className="theme-accent-blue mt-1 flex items-center gap-1 text-[11px] font-medium"
-                >
-                  <Plus className="size-3.5" />
-                  Add field
-                </button>
+                </div>
               </div>
             ) : (
               <div className="overflow-hidden rounded-xl">
@@ -581,7 +612,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
           {/* Avatar Gallery Dialog */}
           <Dialog open={showAvatarDialog} onOpenChange={(o) => { if (!o) { setAvatarTab("url"); setAvatarUrlInput("") } setShowAvatarDialog(o) }}>
-            <DialogContent className="w-[92vw] max-w-sm rounded-2xl p-0 overflow-hidden gap-0">
+            <DialogContent overlayClassName="z-[100002] bg-black/40 backdrop-blur-sm" className="z-[100003] w-[92vw] max-w-sm rounded-2xl p-0 overflow-hidden gap-0">
 
               {/* Header */}
               <DialogHeader className="px-5 pt-5 pb-4 border-b border-border">
@@ -807,7 +838,7 @@ export function RowInfoModal({ open, onOpenChange, point, isEditMode, allowMarke
 
           {/* QR Code dialog — unified for view + edit mode */}
           <Dialog open={showQRDialog} onOpenChange={(o) => { if (!o) { setQrTab("url"); setQrDecodeStatus("idle") } setShowQRDialog(o) }}>
-            <DialogContent className="max-w-sm rounded-2xl p-0 overflow-hidden gap-0">
+            <DialogContent overlayClassName="z-[100002] bg-black/40 backdrop-blur-sm" className="z-[100003] max-w-sm rounded-2xl p-0 overflow-hidden gap-0">
 
               {/* Header */}
               <DialogHeader className="px-5 pt-5 pb-4 border-b border-border">

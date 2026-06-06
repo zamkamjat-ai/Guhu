@@ -1838,7 +1838,6 @@ const trackablePages = ["route-list", "deliveries", "rooster", "plano-vm", "gall
           )}
 
           <RefreshButton />
-          <ThemeToggle />
 
         </header>
         )}

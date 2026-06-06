@@ -422,7 +422,16 @@ const getMapStyle = (): 'google-streets' | 'google-satellite' | 'osm' => {
 }
 
 const SINGLE_ROUTE_MARKER_COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#6366f1', '#a855f7', '#ec4899',
+  '#ef4444', // red
+  '#f97316', // orange
+  '#f59e0b', // amber
+  '#10b981', // emerald
+  '#06b6d4', // cyan
+  '#3b82f6', // blue
+  '#6366f1', // indigo
+  '#7c3aed', // violet
+  '#ec4899', // pink
+  '#fb7185', // rose
 ]
 
 const LS_ROUTE_LIST_HEADER = 'fcalendar_route_list_header'
@@ -4434,7 +4443,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
       {/* ── Map Settings Modal ──────────────────────────────────────── */}
       <Dialog open={mapSettingsOpen} onOpenChange={setMapSettingsOpen}>
-        <DialogContent className="w-[92vw] max-w-[480px] max-h-[600px] overflow-hidden flex flex-col gap-0 p-0 rounded-2xl">
+        <DialogContent className="z-[99999] w-[92vw] max-w-[480px] max-h-[600px] overflow-hidden flex flex-col gap-0 p-0 rounded-2xl">
           <div className="px-5 pt-5 pb-4 border-b border-border shrink-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">Map</p>
             <DialogTitle className="text-xl font-bold text-foreground leading-tight">Settings</DialogTitle>
@@ -4829,7 +4838,7 @@ export function RouteList({ variant = 'route-list' }: RouteListProps) {
 
       {/* ── Settings Modal ──────────────────────────────────────────── */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="w-[92vw] max-w-[480px] max-h-[600px] overflow-hidden flex flex-col gap-0 p-0 rounded-2xl">
+        <DialogContent className="z-[99999] w-[92vw] max-w-[480px] max-h-[600px] overflow-hidden flex flex-col gap-0 p-0 rounded-2xl">
           <div className="px-5 pt-5 pb-4 border-b border-border shrink-0">
             <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">Table</p>
             <DialogTitle className="text-xl font-bold text-foreground leading-tight">Settings</DialogTitle>

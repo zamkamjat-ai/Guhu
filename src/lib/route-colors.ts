@@ -1,6 +1,13 @@
 export const LS_ROUTE_COLORS = "fcalendar_route_colors"
 
-export const DEFAULT_ROUTE_COLORS = ["#374151", "#7c3aed", "#0891b2", "#16a34a", "#dc2626", "#d97706"]
+export const DEFAULT_ROUTE_COLORS = [
+  "#0f172a", // slate-900 (deep neutral)
+  "#6b21a8", // violet-700 (rich)
+  "#0ea5a4", // teal-500 (calm)
+  "#059669", // emerald-600 (balanced)
+  "#ef4444", // red-500 (accent)
+  "#d97706", // amber-600 (warm)
+]
 
 const HEX_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
 

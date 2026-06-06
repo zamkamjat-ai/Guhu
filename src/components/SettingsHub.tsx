@@ -53,13 +53,15 @@ function getInitials(name: string) {
 function SettingRow({ icon, title, description, accentClass, onClick }: {
   icon: React.ReactNode; title: string; description?: string; accentClass: string; onClick: () => void
 }) {
+  const iconClass = accentClass.replace(/\bbg-[^\s]+\b/g, "").trim()
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-4 w-full rounded-3xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/30 hover:shadow-md"
+      className="flex items-center gap-4 w-full rounded-3xl bg-transparent border-0 px-4 py-4 text-left transition hover:shadow-md"
     >
-      <span className={`size-10 grid place-items-center rounded-2xl ${accentClass}`}>
+      <span className={`size-10 grid place-items-center rounded-2xl ${iconClass}`}>
         {icon}
       </span>
       <div className="flex-1 min-w-0">
@@ -104,9 +106,9 @@ export function SettingsHub({ onNavigate }: { onNavigate: (page: string) => void
                   key={item.page}
                   type="button"
                   onClick={() => onNavigate(item.page)}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-4 text-left transition hover:bg-muted/70"
+                  className="flex items-center gap-3 rounded-2xl bg-transparent border-0 px-4 py-4 text-left transition hover:bg-muted/20"
                 >
-                  <span className={`size-10 grid place-items-center rounded-2xl ${item.accentClass}`}>
+                  <span className={`size-10 grid place-items-center rounded-2xl ${item.accentClass.replace(/\bbg-[^\s]+\b/g, "").trim()}`}>
                     {item.icon}
                   </span>
                   <div className="min-w-0">
